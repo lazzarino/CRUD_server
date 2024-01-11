@@ -12,14 +12,13 @@ _dotenv.config({"path":".env"})
 //MongoDB ed express
 import {MongoClient, ObjectId} from 'mongodb'
 
-const DBNAME ="unicorns"
+const DBNAME =process.env.DBNAME
 const connectionString=process.env.connectionStringAtlas
 const app=_express()
 
 
-const port:number=1337
+const port:number=parseInt(process.env.PORT)
 let paginaErrore:any
-
 const server:any=_http.createServer(app)
 
 
@@ -134,7 +133,14 @@ app.get("/api/:collection",async(req,res,next)=>{
 })
 app.get("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
-    let objId=new ObjectId(req["params"].id)
+    let id=req["params"]["id"]
+    let objId
+    if(ObjectId.isValid(id))
+    {
+        objId=new ObjectId(req["params"].id)
+    }
+    else
+        objId=id as unknown as ObjectId
     const client=new MongoClient(connectionString)
     await client.connect()
     let db=client.db(DBNAME).collection(collection)
@@ -169,7 +175,12 @@ app.post("/api/:collection",async(req,res,next)=>{
 
 app.delete("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
-    let objId=new ObjectId(req["params"].id)
+    let id=req["params"]["id"]
+    let objId
+    if(ObjectId.isValid(id))
+        objId=new ObjectId(req["params"].id)
+    else
+        objId=id as unknown as ObjectId
     const client=new MongoClient(connectionString)
     await client.connect()
     let db=client.db(DBNAME).collection(collection)
@@ -198,12 +209,17 @@ app.delete("/api/:collection", async (req, res, next) => {
 
 app.patch("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
-    let objId=new ObjectId(req["params"].id)
-    let updatedRecord=req["body"]
+    let id=req["params"]["id"]
+    let objId
+    if(ObjectId.isValid(id))
+        objId=new ObjectId(req["params"].id)
+    else
+        objId=id as unknown as ObjectId
+    let action=req["body"]
     const client=new MongoClient(connectionString)
     await client.connect()
     let db=client.db(DBNAME).collection(collection)
-    let request=db.updateOne({"_id":objId},{"$set":updatedRecord})
+    let request=db.updateOne({"_id":objId},action)
     request.then((data)=>{
         res.send(data)
     })
@@ -230,7 +246,12 @@ app.patch("/api/:collection", async (req, res, next) => {
 
 app.put("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
-    let objId=new ObjectId(req["params"].id)
+    let id=req["params"]["id"]
+    let objId
+    if(ObjectId.isValid(id))
+        objId=new ObjectId(req["params"].id)
+    else
+        objId=id as unknown as ObjectId
     let updatedRecord=req["body"]
     const client=new MongoClient(connectionString)
     await client.connect()

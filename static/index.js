@@ -48,8 +48,10 @@ $(document).ready(function() {
             });
             rq.catch(errore);
         });
+        $("<button>").appendTo(divDettagli).text("ANNULLA").addClass("btn btn-sm btn-danger").on("click",()=>{
+            divDettagli.empty()})
     });
-
+   
     /******************************************************/
 
     function getCollections() {
@@ -131,7 +133,15 @@ $(document).ready(function() {
             else {
                 // Permette di eliminare la chiave _id perchè non dobbiamo modificarla
                 delete (response.data["_id"]);
-                let textarea = $("<textarea>").appendTo(divDettagli).val(JSON.stringify(response.data, null, 3));
+                let textarea = $("<textarea>").appendTo(divDettagli)
+                if(method.toLowerCase()=="patch")
+                {
+                    textarea.val(JSON.stringify({"$set":{"residenza":"fossano"}},null,3))
+                }
+                else{
+                    textarea.val(JSON.stringify(response.data, null, 3));
+                }
+                
                 textarea.css("height", `${textarea.get(0).scrollHeight}px`);
                 $("<button>").appendTo(divDettagli).text("AGGIORNA").addClass("btn btn-sm btn-success").on("click", function () {
                     let updatedRecord = divDettagli.children("textarea").val();
@@ -150,7 +160,11 @@ $(document).ready(function() {
                     rq.catch(errore);
                 });
             }
+            $("<button>").appendTo(divDettagli).text("ANNULLA").addClass("btn btn-sm btn-danger").on("click",()=>{
+                divDettagli.empty()
+            })
         });
+       
         rq.catch(errore);
     }
 
