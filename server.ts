@@ -69,14 +69,15 @@ app.use("/",(req:any,res:any,next:any)=>{
 })
 
 // 5. Controllo degli accessi tramite CORS
-const corsOptions = {
+/*const corsOptions = {
     origin: function (origin, callback) {
         return callback(null, true);
     },
     credentials: true
 };
+app.use("/", _cors(corsOptions));*/
 
-/*const whitelist = [
+const whitelist = [
     "http://my-crud-server.herokuapp.com ", // porta 80 (default)
     "https://my-crud-server.herokuapp.com ", // porta 443 (default)
     "http://localhost:3000",
@@ -98,9 +99,9 @@ const corsOptions = {
     },
     credentials: true
    };
-app.use("/", _cors(corsOptions));*/
-
 app.use("/", _cors(corsOptions));
+
+
 
 /*********************************************************************************************************************************** */
 //Route finali risposta al client
