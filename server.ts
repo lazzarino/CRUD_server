@@ -69,15 +69,15 @@ app.use("/",(req:any,res:any,next:any)=>{
 })
 
 // 5. Controllo degli accessi tramite CORS
-/*const corsOptions = {
+const corsOptions = {
     origin: function (origin, callback) {
         return callback(null, true);
     },
     credentials: true
 };
-app.use("/", _cors(corsOptions));*/
+app.use("/", _cors(corsOptions));
 
-const whitelist = [
+/*onst whitelist = [
     "http://my-crud-server.herokuapp.com ", // porta 80 (default)
     "https://my-crud-server.herokuapp.com ", // porta 443 (default)
     "http://localhost:3000",
@@ -99,31 +99,10 @@ const corsOptions = {
     },
     credentials: true
    };
-app.use("/", _cors(corsOptions));
-
-
-
+app.use("/", _cors(corsOptions));*/
 /*********************************************************************************************************************************** */
 //Route finali risposta al client
 /*********************************************************************************************************************************** */
-app.get("/api/richiesta1",async(req,res,next)=>{
-    const client = new MongoClient(connectionString);
-    await client.connect()//apre la connessione
-    let nome:string=req["query"]["nome"]
-    let collection:any = client.db(DBNAME).collection("unicorns");
-    let rq:any=collection.findOne({"name":nome})
-    rq.then((data)=>{
-        res.send(data)
-    })
-    rq.catch((err)=>{
-        res.status(500)
-        res.send("Errore esecuzione query: "+err)
-    })
-    rq.finally(()=>{
-        client.close()
-    })
-})
-
 app.get("/api/getCollections",async(req,res,next)=>{
     const client=new MongoClient(connectionString)
     await client.connect()
@@ -233,6 +212,17 @@ app.delete("/api/:collection", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+/*
+    * Chiama il metodo PATCH con l'obbligo di specificare dentro il body la ACTION da eseguire
+    * 
+    * @remarks
+    * Utilizzando questo metodo la PATCH risulta più flessibile
+    * 
+    * @param id - id del record
+    * @body i nuovi valori da aggiornare, ad esempio: {"$inc":{"qta":1}}
+    * @returns Un JSON di conferma aggiornamento
+*/
+
 app.patch("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
     let id=req["params"]["id"]
@@ -269,7 +259,16 @@ app.patch("/api/:collection", async (req, res, next) => {
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
     rq.finally(() => client.close());
 });
-
+/*
+    * Chiama il metodo PUT aggiornato il record invece di sostuirlo 
+    * 
+    * @remarks
+    * Utilizzando questo metodo la PUT esegue direttamente il SET del valore ricevuto:
+    * 
+    * @param id - id del record
+    * @body i nuovi valori da aggiornare
+    * @returns Un JSON di conferma aggiornamento
+*/
 app.put("/api/:collection/:id",async(req,res,next)=>{
     let collection=req["params"].collection
     let id=req["params"]["id"]
@@ -278,11 +277,11 @@ app.put("/api/:collection/:id",async(req,res,next)=>{
         objId=new ObjectId(req["params"].id)
     else
         objId=id as unknown as ObjectId
-    let updatedRecord=req["body"]
+    let newValues=req["body"]
     const client=new MongoClient(connectionString)
     await client.connect()
     let db=client.db(DBNAME).collection(collection)
-    let request=db.replaceOne({"_id":objId},updatedRecord)
+    let request=db.updateOne({"_id":objId},{"$set":newValues})
     request.then((data)=>{
         res.send(data)
     })
@@ -293,8 +292,6 @@ app.put("/api/:collection/:id",async(req,res,next)=>{
         client.close()
     })
 })
-
-
 /***************************************************************************** *************************************************************/
 //Default route e gestione degli errori
 /************************************************************************************************************************************************ */
