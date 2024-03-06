@@ -69,15 +69,15 @@ app.use("/",(req:any,res:any,next:any)=>{
 })
 
 // 5. Controllo degli accessi tramite CORS
-const corsOptions = {
+/*const corsOptions = {
     origin: function (origin, callback) {
         return callback(null, true);
     },
     credentials: true
 };
-app.use("/", _cors(corsOptions));
+app.use("/", _cors(corsOptions));*/
 
-/*onst whitelist = [
+const whitelist = [
     "http://my-crud-server.herokuapp.com ", // porta 80 (default)
     "https://my-crud-server.herokuapp.com ", // porta 443 (default)
     "http://localhost:3000",
@@ -99,7 +99,7 @@ const corsOptions = {
     },
     credentials: true
    };
-app.use("/", _cors(corsOptions));*/
+app.use("/", _cors(corsOptions));
 /*********************************************************************************************************************************** */
 //Route finali risposta al client
 /*********************************************************************************************************************************** */
@@ -238,6 +238,7 @@ app.patch("/api/:collection/:id",async(req,res,next)=>{
     let request=db.updateOne({"_id":objId},action)
     request.then((data)=>{
         res.send(data)
+        console.log(data)
     })
     request.catch((err)=>{
         res.status(500).send("Errore esecuzione query: "+err)
